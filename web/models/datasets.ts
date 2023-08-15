@@ -138,6 +138,7 @@ export type DataSourceInfo = {
     created_by: string
     extension: string
   }
+  notion_page_icon?: string
 }
 
 export type InitialDocumentDetail = {
