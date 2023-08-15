@@ -648,13 +648,18 @@ class DocumentService:
             tenant_document_count = int(current_app.config['TENANT_DOCUMENT_COUNT'])
             if documents_count > tenant_document_count:
                 raise ValueError(f"over document limit {tenant_document_count}.")
+        embedding_model = ModelFactory.get_embedding_model(
+            tenant_id=tenant_id
+        )
         # save dataset
         dataset = Dataset(
             tenant_id=tenant_id,
             name='',
             data_source_type=document_data["data_source"]["type"],
             indexing_technique=document_data["indexing_technique"],
-            created_by=account.id
+            created_by=account.id,
+            embedding_model=embedding_model.name,
+            embedding_model_provider=embedding_model.model_provider.provider_name
         )
 
         db.session.add(dataset)
@@ -864,13 +869,15 @@ class SegmentService:
                 raise ValueError("Answer is required")
 
     @classmethod
-    def create_segment(cls, args: dict, document: Document):
+    def create_segment(cls, args: dict, document: Document, dataset: Dataset):
         content = args['content']
         doc_id = str(uuid.uuid4())
         segment_hash = helper.generate_text_hash(content)
 
         embedding_model = ModelFactory.get_embedding_model(
-            tenant_id=document.tenant_id
+            tenant_id=dataset.tenant_id,
+            model_provider_name=dataset.embedding_model_provider,
+            model_name=dataset.embedding_model
         )
 
         # calc embedding use tokens
@@ -901,7 +908,7 @@ class SegmentService:
         return segment_document
 
     @classmethod
-    def update_segment(cls, args: dict, segment: DocumentSegment, document: Document):
+    def update_segment(cls, args: dict, segment: DocumentSegment, document: Document, dataset: Dataset):
         indexing_cache_key = 'segment_{}_indexing'.format(segment.id)
         cache_result = redis_client.get(indexing_cache_key)
         if cache_result is not None:
@@ -921,7 +928,9 @@ class SegmentService:
             segment_hash = helper.generate_text_hash(content)
 
             embedding_model = ModelFactory.get_embedding_model(
-                tenant_id=document.tenant_id
+                tenant_id=dataset.tenant_id,
+                model_provider_name=dataset.embedding_model_provider,
+                model_name=dataset.embedding_model
             )
 
             # calc embedding use tokens

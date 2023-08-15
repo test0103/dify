@@ -33,6 +33,8 @@ dataset_detail_fields = {
     'created_at': TimestampField,
     'updated_by': fields.String,
     'updated_at': TimestampField,
+    'embedding_model': fields.String,
+    'embedding_model_provider': fields.String
 }
 
 dataset_query_detail_fields = {
@@ -233,6 +235,7 @@ class DatasetIndexingEstimateApi(Resource):
         parser.add_argument('info_list', type=dict, required=True, nullable=True, location='json')
         parser.add_argument('process_rule', type=dict, required=True, nullable=True, location='json')
         parser.add_argument('doc_form', type=str, default='text_model', required=False, nullable=False, location='json')
+        parser.add_argument('dataset_id', type=str, required=False, nullable=False, location='json')
         parser.add_argument('doc_language', type=str, default='English', required=False, nullable=False, location='json')
         args = parser.parse_args()
         # validate args
@@ -251,7 +254,8 @@ class DatasetIndexingEstimateApi(Resource):
 
             try:
                 response = indexing_runner.file_indexing_estimate(current_user.current_tenant_id, file_details,
-                                                                  args['process_rule'], args['doc_form'], args['doc_language'])
+                                                                  args['process_rule'], args['doc_form'],
+                                                                  args['doc_language'], args['dataset_id'])
             except LLMBadRequestError:
                 raise ProviderNotInitializeError(
                     f"No Embedding Model available. Please configure a valid provider "
@@ -264,7 +268,7 @@ class DatasetIndexingEstimateApi(Resource):
                 response = indexing_runner.notion_indexing_estimate(current_user.current_tenant_id,
                                                                     args['info_list']['notion_info_list'],
                                                                     args['process_rule'], args['doc_form'],
-                                                                    args['doc_language'])
+                                                                    args['doc_language'], args['dataset_id'])
             except LLMBadRequestError:
                 raise ProviderNotInitializeError(
                     f"No Embedding Model available. Please configure a valid provider "

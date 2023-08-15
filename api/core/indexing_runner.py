@@ -216,14 +216,25 @@ class IndexingRunner:
             db.session.commit()
 
     def file_indexing_estimate(self, tenant_id: str, file_details: List[UploadFile], tmp_processing_rule: dict,
-                               doc_form: str = None, doc_language: str = 'English') -> dict:
+                               doc_form: str = None, doc_language: str = 'English', dataset_id: str = None) -> dict:
         """
         Estimate the indexing for the document.
         """
-        embedding_model = ModelFactory.get_embedding_model(
-            tenant_id=tenant_id
-        )
-
+        if dataset_id:
+            dataset = Dataset.query.filter_by(
+                id=dataset_id
+            ).first()
+            if not dataset:
+                raise ValueError('Dataset not found.')
+            embedding_model = ModelFactory.get_embedding_model(
+                tenant_id=dataset.tenant_id,
+                model_provider_name=dataset.embedding_model_provider,
+                model_name=dataset.embedding_model
+            )
+        else:
+            embedding_model = ModelFactory.get_embedding_model(
+                tenant_id=tenant_id
+            )
         tokens = 0
         preview_texts = []
         total_segments = 0
@@ -281,13 +292,25 @@ class IndexingRunner:
         }
 
     def notion_indexing_estimate(self, tenant_id: str, notion_info_list: list, tmp_processing_rule: dict,
-                                 doc_form: str = None, doc_language: str = 'English') -> dict:
+                                 doc_form: str = None, doc_language: str = 'English', dataset_id: str = None) -> dict:
         """
         Estimate the indexing for the document.
         """
-        embedding_model = ModelFactory.get_embedding_model(
-            tenant_id=tenant_id
-        )
+        if dataset_id:
+            dataset = Dataset.query.filter_by(
+                id=dataset_id
+            ).first()
+            if not dataset:
+                raise ValueError('Dataset not found.')
+            embedding_model = ModelFactory.get_embedding_model(
+                tenant_id=dataset.tenant_id,
+                model_provider_name=dataset.embedding_model_provider,
+                model_name=dataset.embedding_model
+            )
+        else:
+            embedding_model = ModelFactory.get_embedding_model(
+                tenant_id=tenant_id
+            )
 
         # load data from notion
         tokens = 0
@@ -634,7 +657,9 @@ class IndexingRunner:
         keyword_table_index = IndexBuilder.get_index(dataset, 'economy')
 
         embedding_model = ModelFactory.get_embedding_model(
-            tenant_id=dataset.tenant_id
+            tenant_id=dataset.tenant_id,
+            model_provider_name=dataset.embedding_model_provider,
+            model_name=dataset.embedding_model
         )
 
         # chunk nodes by chunk size

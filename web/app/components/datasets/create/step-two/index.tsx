@@ -239,6 +239,7 @@ const StepTwo = ({
         process_rule: getProcessRule(),
         doc_form: docForm,
         doc_language: docLanguage,
+        dataset_id: datasetId,
       }
     }
     if (dataSourceType === DataSourceType.NOTION) {
@@ -251,6 +252,7 @@ const StepTwo = ({
         process_rule: getProcessRule(),
         doc_form: docForm,
         doc_language: docLanguage,
+        dataset_id: datasetId,
       }
     }
     return params
