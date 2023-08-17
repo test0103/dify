@@ -64,7 +64,9 @@ DEFAULTS = {
     'HOSTED_ANTHROPIC_PAID_MIN_QUANTITY': 20,
     'HOSTED_ANTHROPIC_PAID_MAX_QUANTITY': 100,
     'TENANT_DOCUMENT_COUNT': 100,
-    'CLEAN_DAY_SETTING': 30
+    'CLEAN_DAY_SETTING': 30,
+    'UPLOAD_FILE_SIZE_LIMIT': 15,
+    'UPLOAD_FILE_BATCH_LIMIT': 5,
 }
 
 
@@ -247,6 +249,10 @@ class Config:
 
         self.TENANT_DOCUMENT_COUNT = get_env('TENANT_DOCUMENT_COUNT')
         self.CLEAN_DAY_SETTING = get_env('CLEAN_DAY_SETTING')
+
+        # uploading settings
+        self.UPLOAD_FILE_SIZE_LIMIT = int(get_env('UPLOAD_FILE_SIZE_LIMIT'))
+        self.UPLOAD_FILE_BATCH_LIMIT = int(get_env('UPLOAD_FILE_BATCH_LIMIT'))
 
 
 class CloudEditionConfig(Config):
