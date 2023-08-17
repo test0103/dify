@@ -64,11 +64,7 @@ export default function CustomPopover({
               </Popover.Button>
               <Transition as={Fragment}>
                 <Popover.Panel
-                  className={`${s.popupPanel} ${
-                    position === 'br'
-                      ? 'right-0'
-                      : 'transform -translate-x-1/2 left-1/2'
-                  } ${className}`}
+                  className={`${s.popupPanel} ${position === 'br' ? 'right-0' : 'translate-x-1/2 left-1/2'} ${className}`}
                   {...(trigger !== 'hover'
                     ? {}
                     : {
