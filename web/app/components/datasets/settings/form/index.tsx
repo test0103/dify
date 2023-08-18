@@ -160,6 +160,32 @@ const Form = ({
         </div>
       </div>
       <div className={rowClass}>
+        <div className={labelClass}>
+          <div>{t('datasetSettings.form.embeddingModel')}</div>
+        </div>
+        <div className='w-[480px]'>
+          {currentDataset && (
+            <>
+              <div className='w-full h-9 rounded-lg bg-gray-100 opacity-60'>
+                <ModelSelector
+                  readonly
+                  value={{
+                    providerName: currentDataset.embedding_model_provider as ProviderEnum,
+                    modelName: currentDataset.embedding_model,
+                  }}
+                  modelType={ModelType.embeddings}
+                  onChange={() => {}}
+                />
+              </div>
+              <div className='mt-2 w-full text-xs leading-6 text-gray-500'>
+                {t('datasetSettings.form.embeddingModelTip')}
+                <span className='text-[#155eef] cursor-pointer' onClick={() => setShowSetAPIKeyModal(true)}>{t('datasetSettings.form.embeddingModelTipLink')}</span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      <div className={rowClass}>
         <div className={labelClass} />
         <div className='w-[480px]'>
           <Button
