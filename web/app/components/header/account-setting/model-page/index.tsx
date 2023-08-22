@@ -45,6 +45,8 @@ const MODEL_LIST = [
   config.tongyi,
   config.wenxin,
   config.chatglm,
+  config.xinference,
+  config.openllm,
 ]
 
 const titleClassName = `
