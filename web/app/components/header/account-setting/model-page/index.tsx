@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import useSWR from 'swr'
 import { useTranslation } from 'react-i18next'
+import { useContext } from 'use-context-selector'
 import type {
   BackendModel,
   FormValue,
@@ -30,23 +31,11 @@ import { ModelType } from '@/app/components/header/account-setting/model-page/de
 import { useEventEmitterContextContext } from '@/context/event-emitter'
 import { useProviderContext } from '@/context/provider-context'
 import Tooltip from '@/app/components/base/tooltip'
+import I18n from '@/context/i18n'
 
 const MODEL_CARD_LIST = [
   config.openai,
   config.anthropic,
-]
-
-const MODEL_LIST = [
-  config.azure_openai,
-  config.replicate,
-  config.huggingface_hub,
-  config.minimax,
-  config.spark,
-  config.tongyi,
-  config.wenxin,
-  config.chatglm,
-  config.xinference,
-  config.openllm,
 ]
 
 const titleClassName = `
@@ -70,6 +59,7 @@ const ModelPage = () => {
     speech2textDefaultModel,
     mutateSpeech2textDefaultModel,
   } = useProviderContext()
+  const { locale } = useContext(I18n)
   const { data: providers, mutate: mutateProviders } = useSWR('/workspaces/current/model-providers', fetchModelProviders)
   const { data: textGenerationDefaultModel, mutate: mutateTextGenerationDefaultModel } = useSWR('/workspaces/current/default-model?model_type=text-generation', fetchDefaultModal)
   const [showMoreModel, setShowMoreModel] = useState(false)
@@ -80,6 +70,33 @@ const ModelPage = () => {
   const [confirmShow, setConfirmShow] = useState(false)
   const [deleteModel, setDeleteModel] = useState<DeleteModel & { providerKey: ProviderEnum }>()
   const [modalMode, setModalMode] = useState('add')
+
+  let modelList = []
+
+  if (locale === 'en') {
+    modelList = [
+      config.azure_openai,
+      config.replicate,
+      config.huggingface_hub,
+      config.minimax,
+      config.spark,
+      config.tongyi,
+      config.wenxin,
+      config.chatglm,
+    ]
+  }
+  else {
+    modelList = [
+      config.huggingface_hub,
+      config.minimax,
+      config.spark,
+      config.azure_openai,
+      config.replicate,
+      config.tongyi,
+      config.wenxin,
+      config.chatglm,
+    ]
+  }
 
   const handleOpenModal = (newModelModalConfig: ProviderConfigModal | undefined, editValue?: FormValue) => {
     if (newModelModalConfig) {
@@ -286,7 +303,7 @@ const ModelPage = () => {
         }
       </div>
       {
-        MODEL_LIST.slice(0, showMoreModel ? MODEL_LIST.length : 3).map((model, index) => (
+        modelList.slice(0, showMoreModel ? modelList.length : 3).map((model, index) => (
           <ModelItem
             key={index}
             modelItem={model.item}
