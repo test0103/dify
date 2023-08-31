@@ -1,5 +1,6 @@
 import decimal
 import logging
+import time
 from functools import wraps
 from typing import List, Optional, Any
 
@@ -41,8 +42,14 @@ class AnthropicModel(BaseLLM):
         :param callbacks:
         :return:
         """
+        # collect start time
+        start_time = time.perf_counter()
         prompts = self._get_prompt_from_messages(messages)
-        return self._client.generate([prompts], stop, callbacks)
+        result = self._client.generate([prompts], stop, callbacks)
+
+        end_time = time.perf_counter()
+        logging.warning(f"Anthropic: {self.name} model run time: {end_time - start_time} seconds")
+        return result
 
     def get_num_tokens(self, messages: List[PromptMessage]) -> int:
         """
