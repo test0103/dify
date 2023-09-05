@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next dev",
     "lint": "next lint",
     "fix": "next lint --fix",
     "eslint-fix": "eslint --fix",
@@ -45,7 +45,7 @@
     "lamejs": "1.2.0",
     "lodash-es": "^4.17.21",
     "negotiator": "^0.6.3",
-    "next": "13.3.1",
+    "next": "13.3.4",
     "qs": "^6.11.1",
     "react": "^18.2.0",
     "react-18-input-autosize": "^3.0.0",
