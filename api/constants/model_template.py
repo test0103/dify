@@ -38,7 +38,18 @@ model_templates = {
                     "presence_penalty": 0,
                     "frequency_penalty": 0
                 }
-            })
+            }),
+            'user_input_form': json.dumps([
+                {
+                    "paragraph": {
+                        "label": "Default Input",
+                        "variable": "default_input",
+                        "required": True,
+                        "default": ""
+                    }
+                }
+            ]),
+            'pre_prompt': '{{default_input}}'
         }
     },
 
