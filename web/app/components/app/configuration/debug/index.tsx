@@ -40,6 +40,7 @@ const Debug: FC<IDebug> = ({
     introduction,
     suggestedQuestionsAfterAnswerConfig,
     speechToTextConfig,
+    citationConfig,
     moreLikeThisConfig,
     inputs,
     // setInputs,
@@ -162,6 +163,7 @@ const Debug: FC<IDebug> = ({
       },
       suggested_questions_after_answer: suggestedQuestionsAfterAnswerConfig,
       speech_to_text: speechToTextConfig,
+      retriever_resource: citationConfig,
       agent_mode: {
         enabled: true,
         tools: [...postDatasets],
@@ -199,7 +201,7 @@ const Debug: FC<IDebug> = ({
     setChatList(newList)
 
     // answer
-    const responseItem = {
+    const responseItem: IChatItem = {
       id: `${Date.now()}`,
       content: '',
       isAnswer: true,
@@ -266,6 +268,9 @@ const Debug: FC<IDebug> = ({
           setIsShowSuggestion(true)
         }
       },
+      onMessageEnd: (messageEnd) => {
+        responseItem.citation = messageEnd.retriever_resource
+      },
       onError() {
         setResponsingFalse()
         // role back placeholder answer
@@ -306,6 +311,7 @@ const Debug: FC<IDebug> = ({
       opening_statement: introduction,
       suggested_questions_after_answer: suggestedQuestionsAfterAnswerConfig,
       speech_to_text: speechToTextConfig,
+      retriever_resource: citationConfig,
       more_like_this: moreLikeThisConfig,
       agent_mode: {
         enabled: true,
@@ -382,6 +388,8 @@ const Debug: FC<IDebug> = ({
                   isShowSuggestion={doShowSuggestion}
                   suggestionList={suggestQuestions}
                   isShowSpeechToText={speechToTextConfig.enabled && !!speech2textDefaultModel}
+                  isShowCitation={citationConfig.enabled}
+                  isShowCitationHitInfo
                 />
               </div>
             </div>
