@@ -11,7 +11,8 @@ from sqlalchemy import and_
 
 from core.completion import Completion
 from core.conversation_message_task import PubHandler, ConversationTaskStoppedException
-from core.model_providers.error import LLMBadRequestError, LLMAPIConnectionError, LLMAPIUnavailableError, LLMRateLimitError, \
+from core.model_providers.error import LLMBadRequestError, LLMAPIConnectionError, LLMAPIUnavailableError, \
+    LLMRateLimitError, \
     LLMAuthorizationError, ProviderTokenNotInitError, QuotaExceededError, ModelCurrentlyNotSupportError
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
@@ -95,6 +96,7 @@ class CompletionService:
 
                 app_model_config_model = app_model_config.model_dict
                 app_model_config_model['completion_params'] = completion_params
+                app_model_config.retriever_resource = json.dumps({'enabled': True})
 
                 app_model_config = app_model_config.copy()
                 app_model_config.model = json.dumps(app_model_config_model)
@@ -190,7 +192,6 @@ class CompletionService:
                     conversation=conversation,
                     streaming=streaming,
                     is_override=is_model_config_override,
-                    return_resource=app_model_config.retriever_resource_dict['enabled'],
                     retriever_from=retriever_from
                 )
             except ConversationTaskStoppedException:
@@ -404,9 +405,11 @@ class CompletionService:
                             elif event == 'chain':
                                 yield "data: " + json.dumps(cls.get_chain_response_data(result.get('data'))) + "\n\n"
                             elif event == 'agent_thought':
-                                yield "data: " + json.dumps(cls.get_agent_thought_response_data(result.get('data'))) + "\n\n"
-                            elif event == 'retriever_resource':
-                                yield "data: " + json.dumps(cls.get_retriever_resource_data(result.get('data'))) + "\n\n"
+                                yield "data: " + json.dumps(
+                                    cls.get_agent_thought_response_data(result.get('data'))) + "\n\n"
+                            elif event == 'message_end':
+                                yield "data: " + json.dumps(
+                                    cls.get_message_end_data(result.get('data'))) + "\n\n"
                             elif event == 'ping':
                                 yield "event: ping\n\n"
                             else:
@@ -439,13 +442,14 @@ class CompletionService:
         return response_data
 
     @classmethod
-    def get_retriever_resource_data(cls, data: dict):
+    def get_message_end_data(cls, data: dict):
         response_data = {
-            'event': 'retriever_resource',
+            'event': ' message_end',
             'task_id': data.get('task_id'),
-            'id': data.get('message_id'),
-            'resource': data.get('resource')
+            'id': data.get('message_id')
         }
+        if 'retriever_resources' in data:
+            response_data['retriever_resources'] = data.get('retriever_resources')
         if data.get('mode') == 'chat':
             response_data['conversation_id'] = data.get('conversation_id')
 
