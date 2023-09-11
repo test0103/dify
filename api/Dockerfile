@@ -3,7 +3,7 @@ FROM python:3.10-slim AS base
 
 LABEL maintainer="takatost@gmail.com"
 
-RUN apt-get update \ 
+RUN apt-get update \
     && apt-get install -y --no-install-recommends gcc g++ python3-dev libc-dev libffi-dev
 
 COPY requirements.txt /requirements.txt
@@ -35,6 +35,7 @@ COPY --from=base /pkg /usr/local
 COPY . /app/api/
 
 RUN python -c "from transformers import GPT2TokenizerFast; GPT2TokenizerFast.from_pretrained('gpt2')"
+ENV TRANSFORMERS_OFFLINE true
 
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

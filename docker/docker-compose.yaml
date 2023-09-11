@@ -2,7 +2,7 @@ version: '3.1'
 services:
   # API service
   api:
-    image: langgenius/dify-api:0.3.20
+    image: langgenius/dify-api:0.3.21
     restart: always
     environment:
       # Startup mode, 'api' starts the API server.
@@ -114,12 +114,9 @@ services:
       # The sample rate for Sentry profiles. Default: `1.0`
       SENTRY_PROFILES_SAMPLE_RATE: 1.0
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      weaviate:
-        condition: service_started
+      - db
+      - redis
+      - weaviate
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
@@ -127,7 +124,7 @@ services:
   # worker service
   # The Celery worker for processing the queue.
   worker:
-    image: langgenius/dify-api:0.3.20
+    image: langgenius/dify-api:0.3.21
     restart: always
     environment:
       # Startup mode, 'worker' starts the Celery worker for processing the queue.
@@ -170,19 +167,16 @@ services:
       # the api-key for resend (https://resend.com)
       RESEND_API_KEY: ''
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      weaviate:
-        condition: service_started
+      - db
+      - redis
+      - weaviate
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
 
   # Frontend web application.
   web:
-    image: langgenius/dify-web:0.3.20
+    image: langgenius/dify-web:0.3.21
     restart: always
     environment:
       EDITION: SELF_HOSTED
