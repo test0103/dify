@@ -82,9 +82,11 @@ const ModelPage = () => {
       config.spark,
       config.tongyi,
       config.wenxin,
+      config.zhipuai,
       config.chatglm,
       config.xinference,
       config.openllm,
+      config.localai,
     ]
   }
   else {
@@ -96,6 +98,7 @@ const ModelPage = () => {
       config.replicate,
       config.tongyi,
       config.wenxin,
+      config.zhipuai,
       config.chatglm,
       config.xinference,
       config.openllm,
