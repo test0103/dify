@@ -5,14 +5,20 @@ import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import useSWR from 'swr'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
 import { get } from 'lodash-es'
 import { useTranslation } from 'react-i18next'
+import { useAppContext } from '@/context/app-context'
 import { formatNumber } from '@/utils/format'
 import Basic from '@/app/components/app-sidebar/basic'
 import Loading from '@/app/components/base/loading'
 import type { AppDailyConversationsResponse, AppDailyEndUsersResponse, AppTokenCostsResponse } from '@/models/app'
 import { getAppDailyConversations, getAppDailyEndUsers, getAppStatistics, getAppTokenCosts } from '@/service/apps'
+
 const valueFormatter = (v: string | number) => v
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const COLOR_TYPE_MAP = {
   green: {
@@ -100,6 +106,7 @@ const Chart: React.FC<IChartProps> = ({
   className,
 }) => {
   const { t } = useTranslation()
+  const { userProfile } = useAppContext()
   const statistics = chartData.data
   const statisticsLen = statistics.length
   const extraDataForMarkLine = new Array(statisticsLen >= 2 ? statisticsLen - 2 : statisticsLen).fill('1')
@@ -132,7 +139,7 @@ const Chart: React.FC<IChartProps> = ({
         hideOverlap: true,
         overflow: 'break',
         formatter(value) {
-          return dayjs(value).format(commonDateFormat)
+          return dayjs(value).tz(userProfile.timezone).format(commonDateFormat)
         },
       },
       axisLine: { show: false },
