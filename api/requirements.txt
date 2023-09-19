@@ -52,4 +52,3 @@ pandas==1.5.3
 xinference==0.4.2
 safetensors==0.3.2
 zhipuai==1.0.7
-sentence-transformers==2.2.2

@@ -7,7 +7,7 @@ from core.model_providers.models.embedding.huggingface_embedding import Huggingf
 from core.model_providers.providers.huggingface_hub_provider import HuggingfaceHubProvider
 from models.provider import Provider, ProviderType, ProviderModel
 
-DEFAULT_MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
+DEFAULT_MODEL_NAME = 'obrizum/all-MiniLM-L6-v2'
 
 def get_mock_provider():
     return Provider(
@@ -28,7 +28,7 @@ def get_mock_embedding_model(model_name, huggingfacehub_api_type, mocker):
     credentials = {
         'huggingfacehub_api_type': huggingfacehub_api_type,
         'huggingfacehub_api_token': valid_api_key,
-        'task_type': 'sentence-similarity'
+        'task_type': 'feature-extraction'
     }
 
     if huggingfacehub_api_type == 'inference_endpoints':
@@ -56,7 +56,7 @@ def decrypt_side_effect(tenant_id, encrypted_api_key):
 
 
 @patch('core.helper.encrypter.decrypt_token', side_effect=decrypt_side_effect)
-def test_embed_documents(mock_decrypt, mocker):
+def test_hosted_inference_api_embed_documents(mock_decrypt, mocker):
     embedding_model = get_mock_embedding_model(
         DEFAULT_MODEL_NAME,
         'hosted_inference_api',
@@ -64,15 +64,38 @@ def test_embed_documents(mock_decrypt, mocker):
     rst = embedding_model.client.embed_documents(['test', 'test1'])
     assert isinstance(rst, list)
     assert len(rst) == 2
-    assert len(rst[0]) == 768
+    assert len(rst[0]) == 384
 
 
 @patch('core.helper.encrypter.decrypt_token', side_effect=decrypt_side_effect)
-def test_embed_query(mock_decrypt, mocker):
+def test_hosted_inference_api_embed_query(mock_decrypt, mocker):
     embedding_model = get_mock_embedding_model(
         DEFAULT_MODEL_NAME,
         'hosted_inference_api',
         mocker)
     rst = embedding_model.client.embed_query('test')
     assert isinstance(rst, list)
-    assert len(rst) == 768
+    assert len(rst) == 384
+
+
+@patch('core.helper.encrypter.decrypt_token', side_effect=decrypt_side_effect)
+def test_endpoint_url_inference_api_embed_documents(mock_decrypt, mocker):
+    embedding_model = get_mock_embedding_model(
+        '',
+        'inference_endpoints',
+        mocker)
+    rst = embedding_model.client.embed_documents(['test', 'test1'])
+    assert isinstance(rst, list)
+    assert len(rst) == 2
+    assert len(rst[0]) == 384
+
+
+@patch('core.helper.encrypter.decrypt_token', side_effect=decrypt_side_effect)
+def test_endpoint_url_inference_api_embed_query(mock_decrypt, mocker):
+    embedding_model = get_mock_embedding_model(
+        '',
+        'inference_endpoints',
+        mocker)
+    rst = embedding_model.client.embed_query('test')
+    assert isinstance(rst, list)
+    assert len(rst) == 384
