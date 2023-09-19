@@ -1,4 +1,6 @@
 # -*- coding:utf-8 -*-
+from datetime import datetime, timedelta
+
 import flask
 import flask_login
 from flask import request, current_app
@@ -10,6 +12,7 @@ from controllers.console.error import AccountNotLinkTenantError
 from controllers.console.setup import setup_required
 from libs.helper import email
 from libs.password import valid_password
+from libs.passport import PassportService
 from services.account_service import AccountService, TenantService
 
 
@@ -37,12 +40,18 @@ class LoginApi(Resource):
         except Exception:
             pass
 
-        flask_login.login_user(account, remember=args['remember_me'])
+        flask_login.login_user(account)
         AccountService.update_last_login(account, request)
 
         # todo: return the user info
+        payload = {
+            "user_id": account.id,
+            "exp": datetime.utcnow() + timedelta(days=30),
+        }
 
-        return {'result': 'success'}
+        token = PassportService().issue(payload)
+
+        return {'result': 'success', 'data': token}
 
 
 class LogoutApi(Resource):
