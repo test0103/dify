@@ -10,6 +10,7 @@ from core.model_providers.providers.base import BaseModelProvider, CredentialsVa
 
 from core.model_providers.models.base import BaseProviderModel
 from core.third_party.langchain.llms.huggingface_endpoint_llm import HuggingFaceEndpointLLM
+from core.model_providers.models.embedding.huggingface_embedding import HuggingfaceEmbedding
 from models.provider import ProviderType
 
 
@@ -33,6 +34,8 @@ class HuggingfaceHubProvider(BaseModelProvider):
         """
         if model_type == ModelType.TEXT_GENERATION:
             model_class = HuggingfaceHubModel
+        elif model_type == ModelType.EMBEDDINGS:
+            model_class = HuggingfaceEmbedding
         else:
             raise NotImplementedError
 
@@ -63,7 +66,7 @@ class HuggingfaceHubProvider(BaseModelProvider):
         :param model_type:
         :param credentials:
         """
-        if model_type != ModelType.TEXT_GENERATION:
+        if model_type not in [ModelType.TEXT_GENERATION, ModelType.EMBEDDINGS]:
             raise NotImplementedError
 
         if 'huggingfacehub_api_type' not in credentials \
@@ -88,9 +91,9 @@ class HuggingfaceHubProvider(BaseModelProvider):
             if 'task_type' not in credentials:
                 raise CredentialsValidateFailedError('Task Type must be provided.')
 
-            if credentials['task_type'] not in ("text2text-generation", "text-generation", "summarization"):
+            if credentials['task_type'] not in ("text2text-generation", "text-generation", "summarization", 'sentence-similarity'):
                 raise CredentialsValidateFailedError('Task Type must be one of text2text-generation, '
-                                                     'text-generation, summarization.')
+                                                     'text-generation, summarization, sentence-similarity.')
 
             try:
                 llm = HuggingFaceEndpointLLM(
@@ -112,7 +115,7 @@ class HuggingfaceHubProvider(BaseModelProvider):
                 if 'inference' in model_info.cardData and not model_info.cardData['inference']:
                     raise ValueError(f'Inference API has been turned off for this model {model_name}.')
 
-                VALID_TASKS = ("text2text-generation", "text-generation", "summarization")
+                VALID_TASKS = ("text2text-generation", "text-generation", "summarization", "sentence-similarity")
                 if model_info.pipeline_tag not in VALID_TASKS:
                     raise ValueError(f"Model {model_name} is not a valid task, "
                                      f"must be one of {VALID_TASKS}.")
