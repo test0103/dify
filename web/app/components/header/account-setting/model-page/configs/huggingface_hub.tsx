@@ -68,14 +68,25 @@ const config: ProviderConfig = {
         ]
       }
       if (v?.huggingfacehub_api_type === 'inference_endpoints') {
-        filteredKeys = [
-          'huggingfacehub_api_type',
-          'huggingfacehub_api_token',
-          'model_name',
-          'huggingfacehub_endpoint_url',
-          'task_type',
-          'model_type',
-        ]
+        if (v?.model_type === 'embeddings') {
+          filteredKeys = [
+            'huggingfacehub_api_type',
+            'huggingfacehub_api_token',
+            'model_name',
+            'huggingfacehub_endpoint_url',
+            'model_type',
+          ]
+        }
+        else {
+          filteredKeys = [
+            'huggingfacehub_api_type',
+            'huggingfacehub_api_token',
+            'model_name',
+            'huggingfacehub_endpoint_url',
+            'task_type',
+            'model_type',
+          ]
+        }
       }
       return filteredKeys.reduce((prev: FormValue, next: string) => {
         prev[next] = v?.[next] || ''
@@ -173,7 +184,7 @@ const config: ProviderConfig = {
         },
       },
       {
-        hidden: (value?: FormValue) => value?.huggingfacehub_api_type === 'hosted_inference_api',
+        hidden: (value?: FormValue) => value?.huggingfacehub_api_type === 'hosted_inference_api' || value?.model_type === 'embeddings',
         type: 'radio',
         key: 'task_type',
         required: true,
